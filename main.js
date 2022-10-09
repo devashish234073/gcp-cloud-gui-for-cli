@@ -114,6 +114,8 @@ function serverFunction(req,res) {
                 res.end(stdout);
             }
         });
+    } else {
+        res.end("Invalid path");
     }
 }
 
