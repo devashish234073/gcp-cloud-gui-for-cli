@@ -70,30 +70,9 @@ function convertToArray(data) {
 var server = http.createServer(serverFunction);
 
 function serverFunction(req,res) {
-    if(req.url=="/") {
-        res.writeHead(200,{'Content-Type':'text/html'});
-        var css = createCss();
-        var html = "<table>";
-        html += "<tr><td rowspan='"+(getTotalCommands()*3+1)+"'><textarea id='cmndOut' readonly></textarea></td><td colspan='2'>GUI for GCP CLI</td></tr>";
-        for(k in listOfCommands) {
-            html += "<tr><td colspan='2'><h1>"+k+"</h1></td></tr>";
-            html += "<tr>";
-            var cmnd = listOfCommands[k];
-            var  id = (k.split(" ").join("_")).trim();
-            html+="<td colspan='2'><select id='"+id+"'>";
-            for(indx in cmnd) {
-                html+="<option>"+cmnd[indx]+"</option>";
-            }
-            html+="</select></td></tr><tr>";
-            html+="<td><input type='text' placeholder='Additional Arguments' class='additionalArgs' id='additionalArgs_"+id+"'></td>";
-            html+="<td><input type='button' value='Run' onclick='runCommand(\""+id+"\")'></td>";
-            html += "</tr>";
-        }
-        html+="</table>";
-        var script = createScript();
-        res.end(css+html+script);
-    } else if(req.url.indexOf("/callCmnd_")==0) {
-        var callCmnd_ = req.url.replace("/callCmnd_","");
+    if(req.url.indexOf("/callCmnd_")>-1) {
+        var callCmndSplit = req.url.split("callCmnd_");
+        var callCmnd_ = callCmndSplit[1];
         if(callCmnd_.indexOf("%20")>-1) {
             callCmnd_ = callCmnd_.split("%20").join(" ");
         }
@@ -115,7 +94,27 @@ function serverFunction(req,res) {
             }
         });
     } else {
-        res.end("Invalid path");
+        res.writeHead(200,{'Content-Type':'text/html'});
+        var css = createCss();
+        var html = "<table>";
+        html += "<tr><td rowspan='"+(getTotalCommands()*3+1)+"'><textarea id='cmndOut' readonly></textarea></td><td colspan='2'>GUI for GCP CLI</td></tr>";
+        for(k in listOfCommands) {
+            html += "<tr><td colspan='2'><h1>"+k+"</h1></td></tr>";
+            html += "<tr>";
+            var cmnd = listOfCommands[k];
+            var  id = (k.split(" ").join("_")).trim();
+            html+="<td colspan='2'><select id='"+id+"'>";
+            for(indx in cmnd) {
+                html+="<option>"+cmnd[indx]+"</option>";
+            }
+            html+="</select></td></tr><tr>";
+            html+="<td><input type='text' placeholder='Additional Arguments' class='additionalArgs' id='additionalArgs_"+id+"'></td>";
+            html+="<td><input type='button' value='Run' onclick='runCommand(\""+id+"\")'></td>";
+            html += "</tr>";
+        }
+        html+="</table>";
+        var script = createScript();
+        res.end(css+html+script);
     }
 }
 
