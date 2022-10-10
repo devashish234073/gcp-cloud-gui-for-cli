@@ -97,6 +97,7 @@ function serverFunction(req,res) {
         res.writeHead(200,{'Content-Type':'text/html'});
         var css = createCss();
         var html = "<table>";
+        html+= "<tr><td colspan='3'><select id='history' style='width:100%'><option value=''>--Choose history to see the output--</option></select></td></tr>";
         html += "<tr><td rowspan='"+(getTotalCommands()*3+1)+"'><textarea id='cmndOut' readonly></textarea></td><td colspan='2'>GUI for GCP CLI</td></tr>";
         for(k in listOfCommands) {
             html += "<tr><td colspan='2'><h1>"+k+"</h1></td></tr>";
@@ -127,6 +128,7 @@ server.listen(PORT,()=>{
 function createScript() {
     var script = `
      <script>
+     var historyDrpDwn = document.querySelector('#history');
       function runCommand(id) {
         var obj = document.querySelector('#'+id);
         var additionalArgs = document.querySelector('#additionalArgs_'+id);
@@ -138,6 +140,9 @@ function createScript() {
         runCmdInner(cmd);
       }
       var cmd_history = {};
+      historyDrpDwn.addEventListener("change",function() {
+        cmndOut.innerText = historyDrpDwn.value;
+      });
       function runCmdInner(cmd) {
         fetch('callCmnd_'+cmd)
           .then(function(response) {
@@ -147,6 +152,10 @@ function createScript() {
             txt = txt.split("\\n").join("\\r\\n");
             txt = txt.split("- ").join("\\r\\n- ");
             cmd_history[cmd] = txt;
+            var opt = document.createElement("option");
+            opt.innerText = cmd;
+            opt.value = txt;
+            historyDrpDwn.appendChild(opt);
             cmndOut.innerText = txt;
           })
     .catch(function(err) {  
